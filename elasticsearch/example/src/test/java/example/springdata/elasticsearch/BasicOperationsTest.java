@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,7 @@ import org.springframework.data.elasticsearch.core.FacetedPage;
 import org.springframework.data.elasticsearch.core.facet.request.HistogramFacetRequestBuilder;
 import org.springframework.data.elasticsearch.core.facet.request.TermFacetRequestBuilder;
 import org.springframework.data.elasticsearch.core.facet.result.HistogramResult;
+import org.springframework.data.elasticsearch.core.facet.result.IntervalUnit;
 import org.springframework.data.elasticsearch.core.facet.result.Term;
 import org.springframework.data.elasticsearch.core.facet.result.TermResult;
 import org.springframework.data.elasticsearch.core.query.Criteria;
@@ -57,10 +59,13 @@ public class BasicOperationsTest {
 
 		//then
 		assertThat(result.size(), is(3));
+		System.out.println("\n\n");
 		for (Conference c : result) {
+			System.out.println(c);
 			assertThat(c.getKeywords(), hasItems(expectedWord));
 			assertThat(format.parse(c.getDate()), greaterThan(format.parse(expectedDate)));
 		}
+		System.out.println("\n\n");
 	}
 
 	@Test
@@ -74,7 +79,12 @@ public class BasicOperationsTest {
 		//when
 		List<Conference> result = template.queryForList(query, Conference.class);
 
+		System.out.println("\n\n");
 		//then
+		for(Conference c: result) {
+			System.out.println(c);
+		}
+		System.out.println("\n\n");
 		assertThat(result.size(), is(2));
 	}
 
@@ -92,8 +102,10 @@ public class BasicOperationsTest {
 		//then
 		assertThat(facet.getTerms().size(), is(8));
 		for (Term t : facet.getTerms()) {
+			System.out.println("Term "+t.getTerm()+ " count "+t.getCount());
 			assertThat(t.getTerm(), isOneOf("java", "spring", "scala", "play", "elasticsearch", "kibana", "cloud", "aws"));
 		}
+		System.out.println("\n\n");
 	}
 
 	@Test
@@ -109,6 +121,11 @@ public class BasicOperationsTest {
 		HistogramResult facet = (HistogramResult) firstPage.getFacet(facetName);
 
 		//then
+		System.out.println("\n\n");
+		for(IntervalUnit unit: facet.getIntervalUnit()){
+			System.out.println("interval key "+format.format(new Date(unit.getKey()))+ " "+unit.getCount());
+		}
+		System.out.println("\n\n");
 		assertThat(facet.getIntervalUnit().size(), is(3));
 	}
 }
